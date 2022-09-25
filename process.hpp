@@ -14,6 +14,7 @@ namespace shell
         WAIT,
         SUSPEND
     };
+
     class Process
     {
     public:
@@ -23,6 +24,10 @@ namespace shell
         void setpid(pid_t pid)
         {
             id_ = pid;
+        }
+        pid_t id()
+        {
+            return id_;
         }
         std::string cmd_name()
         {
@@ -43,14 +48,24 @@ namespace shell
             if (cmd_argument_.size() >= 2)
                 return cmd_argument_[1];
             else
+            {
                 std::cerr << "No first argument available" << std::endl;
+                return "";
+            }
         }
         std::string second_arg() const
         {
             if (cmd_argument_.size() >= 3)
                 return cmd_argument_[2];
             else
+            {
                 std::cerr << "No second argument available" << std::endl;
+                return "";
+            }
+        }
+        void stop()
+        {
+            stopped = true;
         }
 
     private:
@@ -64,6 +79,7 @@ namespace shell
         std::string total_cmd_;
         std::string cmd_name_;
         std::vector<std::string> cmd_argument_;
+        bool stopped;
     };
 
 }

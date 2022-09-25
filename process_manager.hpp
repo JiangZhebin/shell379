@@ -7,6 +7,7 @@ namespace shell
     class ProcessManager 
     {
     public:
+        void execute();
         int createProcess(Process &proc, bool is_backend);
         void chooseProgram(Process proc);
         void executeFunc(const Process &proc);
