@@ -9,14 +9,39 @@ namespace shell
         parseCommand(cmd);
     }
 
-    bool Process::parseCommand(const std::string &cmd)
+    void Process::parseCommand(const std::string &cmd)
     {
+        cmd_argument_.clear();
         std::istringstream iss(cmd);
         std::string arg;
-    while(iss >> arg) {
+        while (iss >> arg)
+        {
             cmd_argument_.push_back(arg);
             std::cout << arg << std::endl;
+        }
+        if (arg.size() > 0)
+        {
+            cmd_name_ = cmd_argument_[0];
+        }
+        else
+        {
+            std::cerr << "No input command" << std::endl;
+        }
+        chooseProgram();
     }
-    return true;
+    void Process::chooseProgram() {
+        if( cmd_name_ == "sleep") {
+            type_ = ProcessType::SLEEP;
+            
+        } else if (cmd_name_ == "wait") {
+           type_ = ProcessType::WAIT; 
+        }
+        else {
+            type_ = ProcessType::NONE;
+        }
+    }
+    void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time) {
+        id_ = pid;
+        start_time_ = current_time; 
     }
 }

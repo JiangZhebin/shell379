@@ -7,11 +7,15 @@ namespace shell
     class ProcessManager 
     {
     public:
+        int createProcess(Process &proc, bool is_backend);
+        void chooseProgram(Process proc);
+        void executeFunc(const Process &proc);
+        void enrichProcess(Process &proc);
         void jobs();
         void sleep(int secs);
         void resume(int id);
         void kill(int id);
-        void exit();
+        // void exit();
         void suspend(int id);
         void wait(int pid);
 
