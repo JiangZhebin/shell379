@@ -12,7 +12,14 @@ namespace shell
         NONE = 0,
         SLEEP,
         WAIT,
-        SUSPEND
+        SUSPEND,
+        JOBS
+    };
+    enum class ProcessStatus
+    {
+        RUNNING = 0,
+        SUSPEND,
+        END
     };
 
     class Process
@@ -21,6 +28,13 @@ namespace shell
         Process(std::string command);
         void parseCommand(const std::string &cmd);
         void chooseProgram();
+        void checkBackend();
+        std::string command() const {
+            return total_cmd_;
+        }
+        void setStatus(char status) {
+            status_ = status;
+        }
         void setpid(pid_t pid)
         {
             id_ = pid;
@@ -67,12 +81,18 @@ namespace shell
         {
             stopped = true;
         }
+        double running_time() const {
+            return running_time_;
+        }
+        char status() const {
+            return status_;
+        }
 
     private:
         std::string name_;
         pid_t id_;
         ProcessType type_;
-        uint64_t running_time_;
+        double running_time_;
         std::chrono::system_clock::time_point start_time_;
         uint64_t end_time_;
         bool is_backend_;
@@ -80,6 +100,8 @@ namespace shell
         std::string cmd_name_;
         std::vector<std::string> cmd_argument_;
         bool stopped;
+        char status_;
+        
     };
 
 }

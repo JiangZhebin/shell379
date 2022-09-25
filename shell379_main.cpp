@@ -6,7 +6,8 @@ using namespace shell;
 int main()
 {
     ProcessManager process_manager;
-    std::thread process_manager_daemon(&ProcessManager::execute, process_manager);
+    std::thread process_manager_daemon(&ProcessManager::execute, &process_manager);
+    // process_manager.spawn();
     std::string command;
     std::cout << "Enter shell379" << std::endl;
     while (std::getline(std::cin, command))
@@ -17,8 +18,12 @@ int main()
         if(!p1.is_backend()) {
             int status;
             waitpid(p1.id(), &status, 0);
-            std::cout << "After waitpid" << std::endl;
+            process_manager.deleteProcess(p1.id());
         }
+        else {
+            continue;
+        }
+
     }
 
     return 0;

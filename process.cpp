@@ -17,7 +17,7 @@ namespace shell
         while (iss >> arg)
         {
             cmd_argument_.push_back(arg);
-            std::cout << arg << std::endl;
+            // std::cout << arg << std::endl;
         }
         if (arg.size() > 0)
         {
@@ -28,6 +28,7 @@ namespace shell
             std::cerr << "No input command" << std::endl;
         }
         chooseProgram();
+        checkBackend();
     }
     void Process::chooseProgram() {
         if( cmd_name_ == "sleep") {
@@ -36,12 +37,25 @@ namespace shell
         } else if (cmd_name_ == "wait") {
            type_ = ProcessType::WAIT; 
         }
+        else if (cmd_name_ == "jobs") {
+            type_ = ProcessType::JOBS;
+        }
+        else if (cmd_name_ == "suspend" ){
+            type_ = ProcessType::SUSPEND;
+        } 
         else {
             type_ = ProcessType::NONE;
         }
     }
+    void Process::checkBackend() {
+        if(cmd_argument_.back() == "&")
+            is_backend_ = true;
+        else 
+            is_backend_ = false;
+    }
     void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time) {
         id_ = pid;
         start_time_ = current_time; 
+        status_ = 'R';
     }
 }

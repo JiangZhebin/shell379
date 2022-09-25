@@ -1,0 +1,17 @@
+[
+{
+  "directory": "/Users/jiangzhebin/cpp_bash/build",
+  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.1 -std=gnu++11 -o CMakeFiles/shell_data_manager.dir/process.cpp.o -c /Users/jiangzhebin/cpp_bash/process.cpp",
+  "file": "/Users/jiangzhebin/cpp_bash/process.cpp"
+},
+{
+  "directory": "/Users/jiangzhebin/cpp_bash/build",
+  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.1 -std=gnu++11 -o CMakeFiles/shell_data_manager.dir/process_manager.cpp.o -c /Users/jiangzhebin/cpp_bash/process_manager.cpp",
+  "file": "/Users/jiangzhebin/cpp_bash/process_manager.cpp"
+},
+{
+  "directory": "/Users/jiangzhebin/cpp_bash/build",
+  "command": "/usr/bin/clang++   -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -mmacosx-version-min=12.1 -std=gnu++11 -o CMakeFiles/shell379.dir/shell379_main.cpp.o -c /Users/jiangzhebin/cpp_bash/shell379_main.cpp",
+  "file": "/Users/jiangzhebin/cpp_bash/shell379_main.cpp"
+}
+]

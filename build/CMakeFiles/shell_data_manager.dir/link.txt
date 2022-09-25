@@ -1,0 +1,2 @@
+/usr/bin/ar qc libshell_data_manager.a CMakeFiles/shell_data_manager.dir/process.cpp.o CMakeFiles/shell_data_manager.dir/process_manager.cpp.o
+/usr/bin/ranlib libshell_data_manager.a

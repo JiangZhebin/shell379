@@ -9,6 +9,8 @@ namespace shell
     public:
         void execute();
         int createProcess(Process &proc, bool is_backend);
+        void deleteProcess(pid_t pid);
+        std::thread spawn();
         void chooseProgram(Process proc);
         void executeFunc(const Process &proc);
         void enrichProcess(Process &proc);
