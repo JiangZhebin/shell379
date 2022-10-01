@@ -1,4 +1,0 @@
-/Users/jiangzhebin/cpp_bash/build/CMakeFiles/shell_data_manager.dir
-/Users/jiangzhebin/cpp_bash/build/CMakeFiles/shell379.dir
-/Users/jiangzhebin/cpp_bash/build/CMakeFiles/edit_cache.dir
-/Users/jiangzhebin/cpp_bash/build/CMakeFiles/rebuild_cache.dir

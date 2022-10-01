@@ -1,4 +1,3 @@
-#include "process_manager.hpp"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,6 +6,8 @@
 #include <iomanip>
 #include <thread>
 #include <sys/wait.h>
+
+#include "process_manager.hpp"
 namespace shell
 {
     int ProcessManager::createProcess(Process &proc, bool is_backend)
@@ -22,7 +23,7 @@ namespace shell
         else if (pid == 0)
         {
             // enrichProcess(proc);
-            std::cout << " child process pid : " << getpid() << std::endl;
+            // std::cout << " child process pid : " << getpid() << std::endl;
             executeFunc(proc);
             ::exit(EXIT_SUCCESS);
         }
@@ -49,8 +50,10 @@ namespace shell
     void ProcessManager::chooseProgram(Process proc)
     {
     }
-    std::thread ProcessManager::spawn() {
-        return std::thread([&] {execute();});
+    std::thread ProcessManager::spawn()
+    {
+        return std::thread([&]
+                           { execute(); });
     }
     void ProcessManager::executeFunc(const Process &proc)
     {
@@ -61,6 +64,12 @@ namespace shell
             break;
         case ProcessType::JOBS:
             jobs();
+            break;
+        case ProcessType::SUSPEND:
+            suspend(stoi(proc.first_arg()));
+            break;
+        case ProcessType::RESUME:
+            resume(stoi(proc.first_arg()));
             break;
         default:
             std::cout << "Other commands" << std::endl;
@@ -81,9 +90,9 @@ namespace shell
             {
                 int status;
                 // std::cout << "wait for process" << std::endl;
-                pid_t ret = waitpid(it->first, &status, WNOHANG);
+                pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | SIGCONT);
                 // printf("status: %d\n", status);
-                if (ret != 0)
+                if (WIFEXITED(status))
                 {
                     process_pool_.erase(it);
                     std::cout << "Closing " << it->first << std::endl;
@@ -93,9 +102,9 @@ namespace shell
                     it->second.stop();
                     it->second.setStatus('S');
                 }
-                else
+                else if (WIFCONTINUED(status))
                 {
-                    // TODO
+                    it->second.setStatus('R');
                 }
                 it++;
             }
@@ -113,18 +122,35 @@ namespace shell
     void ProcessManager::jobs()
     {
         std::cout << "Running processes:" << std::endl;
-        std::cout << "#" << std::setw(5) << "PID" << std::setw(6) << "S" << std::setw(3)  << "SEC" << std::setw(5) << "COMMAND" << std::endl;
+        std::cout << "#" << std::setw(5) << "PID" << std::setw(6) << "S" << std::setw(8) << "SEC" << std::setw(10) << "COMMAND" << std::endl;
         int num = 0;
-        for(auto p : process_pool_)
+        for (auto p : process_pool_)
         {
-            std::cout << num << std::setw(5) << p.second.id() << std::setw(6) << p.second.status() << std::setw(3) << p.second.running_time() << std::setw(5) << p.second.command() << std::endl;  
+            std::cout << num << std::setw(5) << p.second.id() << std::setw(6) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
         }
         std::cout << "Processes = " << process_pool_.size() << " active" << std::endl;
         std::cout << "Completed processes:" << std::endl;
-        // std::cout << "User time = " << 
+        // std::cout << "User time = " <<
     }
 
-    void ProcessManager::deleteProcess(pid_t pid) {
+    void ProcessManager::suspend(int id)
+    {
+        if(!process_pool_.count(id)) {
+           std::cerr << "Process: " << id << " does not exist" << std::endl; 
+        }
+        ::kill(id, SIGTSTP);
+    }
+
+    void ProcessManager::resume(int id)
+    {
+        if(!process_pool_.count(id)) {
+           std::cerr << "Process: " << id << " does not exist" << std::endl; 
+        }
+        ::kill(id, SIGCONT);
+    }
+
+    void ProcessManager::deleteProcess(pid_t pid)
+    {
         process_pool_.erase(pid);
     }
 

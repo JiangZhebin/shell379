@@ -13,6 +13,7 @@ namespace shell
         SLEEP,
         WAIT,
         SUSPEND,
+        RESUME,
         JOBS
     };
     enum class ProcessStatus
@@ -25,6 +26,7 @@ namespace shell
     class Process
     {
     public:
+        Process() = default;
         Process(std::string command);
         void parseCommand(const std::string &cmd);
         void chooseProgram();

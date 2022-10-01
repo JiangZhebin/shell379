@@ -1,7 +1,9 @@
 #ifndef PROCESS_MANAGER_HPP 
 #define PROCESS_MANAGER_HPP 
 #include <unordered_map>
+#include <signal.h>
 #include "process.hpp"
+
 namespace shell
 {
     class ProcessManager 

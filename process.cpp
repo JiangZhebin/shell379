@@ -43,6 +43,9 @@ namespace shell
         else if (cmd_name_ == "suspend" ){
             type_ = ProcessType::SUSPEND;
         } 
+        else if (cmd_name_ == "resume"){
+            type_ = ProcessType::RESUME;
+        }
         else {
             type_ = ProcessType::NONE;
         }
