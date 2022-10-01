@@ -30,35 +30,48 @@ namespace shell
         chooseProgram();
         checkBackend();
     }
-    void Process::chooseProgram() {
-        if( cmd_name_ == "sleep") {
+    void Process::chooseProgram()
+    {
+        if (cmd_name_ == "sleep")
+        {
             type_ = ProcessType::SLEEP;
-            
-        } else if (cmd_name_ == "wait") {
-           type_ = ProcessType::WAIT; 
         }
-        else if (cmd_name_ == "jobs") {
+        else if (cmd_name_ == "wait")
+        {
+            type_ = ProcessType::WAIT;
+        }
+        else if (cmd_name_ == "jobs")
+        {
             type_ = ProcessType::JOBS;
         }
-        else if (cmd_name_ == "suspend" ){
+        else if (cmd_name_ == "suspend")
+        {
             type_ = ProcessType::SUSPEND;
-        } 
-        else if (cmd_name_ == "resume"){
+        }
+        else if (cmd_name_ == "resume")
+        {
             type_ = ProcessType::RESUME;
         }
-        else {
+        else if (cmd_name_ == "kill")
+        {
+            type_ = ProcessType::KILL;
+        }
+        else
+        {
             type_ = ProcessType::NONE;
         }
     }
-    void Process::checkBackend() {
-        if(cmd_argument_.back() == "&")
+    void Process::checkBackend()
+    {
+        if (cmd_argument_.back() == "&")
             is_backend_ = true;
-        else 
+        else
             is_backend_ = false;
     }
-    void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time) {
+    void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time)
+    {
         id_ = pid;
-        start_time_ = current_time; 
+        start_time_ = current_time;
         status_ = 'R';
     }
 }

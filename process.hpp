@@ -14,7 +14,8 @@ namespace shell
         WAIT,
         SUSPEND,
         RESUME,
-        JOBS
+        JOBS,
+        KILL
     };
     enum class ProcessStatus
     {

@@ -31,6 +31,9 @@ namespace shell
         {
             int status;
             process_pool_.insert(std::pair<pid_t, Process>(proc.id(), proc));
+            if(proc.type() == ProcessType::KILL) {
+                process_pool_.erase(stoi(proc.first_arg()));
+            }
             return pid;
         }
         // }
@@ -71,6 +74,9 @@ namespace shell
         case ProcessType::RESUME:
             resume(stoi(proc.first_arg()));
             break;
+        case ProcessType::KILL:
+            kill(stoi(proc.first_arg()));
+            break;
         default:
             std::cout << "Other commands" << std::endl;
         }
@@ -91,7 +97,6 @@ namespace shell
                 int status;
                 // std::cout << "wait for process" << std::endl;
                 pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | SIGCONT);
-                // printf("status: %d\n", status);
                 if (WIFEXITED(status))
                 {
                     process_pool_.erase(it);
@@ -105,6 +110,15 @@ namespace shell
                 else if (WIFCONTINUED(status))
                 {
                     it->second.setStatus('R');
+                }
+                // else if (WIFSIGNALED(status))
+                // {
+                //     std::cout << "Process: " << it->first << " is terminated by SIGTERM" << std::endl;
+                //     process_pool_.erase(it);
+                // }
+                else
+                {
+                    // printf("status: %d\n", status);
                 }
                 it++;
             }
@@ -135,18 +149,29 @@ namespace shell
 
     void ProcessManager::suspend(int id)
     {
-        if(!process_pool_.count(id)) {
-           std::cerr << "Process: " << id << " does not exist" << std::endl; 
+        if (!process_pool_.count(id))
+        {
+            std::cerr << "Process: " << id << " does not exist" << std::endl;
         }
         ::kill(id, SIGTSTP);
     }
 
     void ProcessManager::resume(int id)
     {
-        if(!process_pool_.count(id)) {
-           std::cerr << "Process: " << id << " does not exist" << std::endl; 
+        if (!process_pool_.count(id))
+        {
+            std::cerr << "Process: " << id << " does not exist" << std::endl;
         }
         ::kill(id, SIGCONT);
+    }
+
+    void ProcessManager::kill(int id)
+    {
+        if (!process_pool_.count(id))
+        {
+            std::cerr << "Process: " << id << " does not exist" << std::endl;
+        }
+        ::kill(id, SIGTERM);
     }
 
     void ProcessManager::deleteProcess(pid_t pid)
