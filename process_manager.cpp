@@ -134,7 +134,7 @@ namespace shell
                     if (ret < 0)
                     {
                         // fprintf(stderr, "%s\n", explain_waitpid(it->first, status, WNOHANG));
-                        std::cout << "waitpid failed " << errno << std::endl;
+                        // std::cout << "waitpid failed " << errno << std::endl;
                     }
                     if (status != NULL)
                     {
@@ -193,7 +193,7 @@ namespace shell
             result += buffer.data();
         }
         if(result == ""){
-            std::cerr<< "empty string time"<< std::endl;
+            // std::cerr<< "empty string time"<< std::endl;
             return 0.0;
         }
         else {
@@ -292,7 +292,7 @@ namespace shell
 
     void ProcessManager::system_cmd(const Process &proc)
     {
-        printf("Using system cmd %s", proc.cmd_name().data());
+        // printf("Using system cmd %s", proc.cmd_name().data());
         const char *cmd = proc.cmd_name().data();
         // char arguments[proc.args().size() + 1][MAX_LENGTH];
 
