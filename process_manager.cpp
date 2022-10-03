@@ -53,7 +53,8 @@ namespace shell
             process_pool_.insert(std::pair<pid_t, Process>(proc.id(), proc));
             if (proc.type() == ProcessType::KILL)
             {
-                process_pool_.erase(stoi(proc.first_arg()));
+                deleteProcess(stoi(proc.first_arg()));
+                using_time_ += process_pool_[stoi(proc.first_arg())].running_time();
             }
             return pid;
         }
