@@ -2,6 +2,8 @@
 #include "process_manager.hpp"
 #include <iostream>
 #include <thread>
+#include <sys/types.h>
+#include <sys/wait.h>
 using namespace shell;
 int main()
 {

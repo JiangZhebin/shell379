@@ -5,4 +5,4 @@ add_library(shell_data_manager STATIC
 process.cpp
 process_manager.cpp)
 add_executable(${PROJECT_NAME} shell379_main.cpp)
-target_link_libraries(${PROJECT_NAME} shell_data_manager)
+target_link_libraries(${PROJECT_NAME} shell_data_manager -lpthread)

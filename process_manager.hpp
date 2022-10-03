@@ -2,6 +2,7 @@
 #define PROCESS_MANAGER_HPP 
 #include <unordered_map>
 #include <signal.h>
+#include <thread>
 #include "process.hpp"
 
 namespace shell
