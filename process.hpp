@@ -32,6 +32,13 @@ namespace shell
         void parseCommand(const std::string &cmd);
         void chooseProgram();
         void checkBackend();
+        bool isCompleted(){
+            return completed_;
+        }
+        void complete(){
+            completed_ = true;
+            status_ = 'F';
+        }
         std::string command() const {
             return total_cmd_;
         }
@@ -104,6 +111,7 @@ namespace shell
         std::vector<std::string> cmd_argument_;
         bool stopped;
         char status_;
+        bool completed_ = false;
         
     };
 

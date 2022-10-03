@@ -93,38 +93,42 @@ namespace shell
         {
             // printf("executing\n");
             auto it = process_pool_.begin();
-            while (it != process_pool_.end())
+            while (it != process_pool_.end()) 
             {
-                int status;
-                pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | WCONTINUED);
-                if(ret <0 ) {
+                if (!it->second.isCompleted())
+                {
+                    int status;
+                    pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | WCONTINUED);
+                    if (ret < 0)
+                    {
                         // fprintf(stderr, "%s\n", explain_waitpid(it->first, status, WNOHANG));
                         std::cout << "waitpid failed " << errno << std::endl;
-                }
-                if (status != NULL)
-                {
-                    if (WIFEXITED(status))
-                    {
-                        std::cout << "Closing " << it->first << std::endl;
-                        process_pool_.erase(it);
                     }
-                    else if (WIFSTOPPED(status))
+                    if (status != NULL)
                     {
-                        it->second.stop();
-                        it->second.setStatus('S');
-                    }
-                    else if (WIFCONTINUED(status))
-                    {
-                        it->second.setStatus('R');
-                    }
-                    // else if (WIFSIGNALED(status))
-                    // {
-                    //     std::cout << "Process: " << it->first << " is terminated by SIGTERM" << std::endl;
-                    //     process_pool_.erase(it);
-                    // }
-                    else
-                    {
-                        // printf("status: %d\n", status);
+                        if (WIFEXITED(status))
+                        {
+                            std::cout << "Closing " << it->first << std::endl;
+                            process_pool_[it->first].complete();
+                        }
+                        else if (WIFSTOPPED(status))
+                        {
+                            it->second.stop();
+                            it->second.setStatus('S');
+                        }
+                        else if (WIFCONTINUED(status))
+                        {
+                            it->second.setStatus('R');
+                        }
+                        // else if (WIFSIGNALED(status))
+                        // {
+                        //     std::cout << "Process: " << it->first << " is terminated by SIGTERM" << std::endl;
+                        //     process_pool_.erase(it);
+                        // }
+                        else
+                        {
+                            // printf("status: %d\n", status);
+                        }
                     }
                 }
                 it++;
@@ -143,15 +147,29 @@ namespace shell
     void ProcessManager::jobs()
     {
         std::cout << "Running processes:" << std::endl;
-        std::cout << "#" << std::setw(5) << "PID" << std::setw(6) << "S" << std::setw(8) << "SEC" << std::setw(10) << "COMMAND" << std::endl;
-        int num = 0;
+        std::cout << "#" << std::setw(10) << "PID" << std::setw(10) << "S" << std::setw(20) << "SEC" << std::setw(20) << "COMMAND" << std::endl;
+        int active_index = 0;
+        int complete_index = 0;
+        int active_num = 0;
         for (auto p : process_pool_)
         {
-            std::cout << num << std::setw(5) << p.second.id() << std::setw(6) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
+            if (!p.second.isCompleted())
+            {
+                std::cout << active_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
+                active_num++;
+                active_index++;
+            }
         }
-        std::cout << "Processes = " << process_pool_.size() << " active" << std::endl;
+        std::cout << "Processes = " << active_num << " active" << std::endl;
         std::cout << "Completed processes:" << std::endl;
-        // std::cout << "User time = " <<
+        for (auto p : process_pool_)
+        {
+            if (p.second.isCompleted())
+            {
+                std::cout << complete_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
+                complete_index++;
+            }
+        }
     }
 
     void ProcessManager::suspend(int id)
@@ -183,7 +201,7 @@ namespace shell
 
     void ProcessManager::deleteProcess(pid_t pid)
     {
-        process_pool_.erase(pid);
+        process_pool_[pid].complete();
     }
 
 }
