@@ -28,7 +28,7 @@ namespace shell
             std::cerr << "No input command" << std::endl;
         }
         chooseProgram();
-        checkBackend();
+        checkSpecialArgs();
     }
     void Process::chooseProgram()
     {
@@ -62,16 +62,33 @@ namespace shell
         }
         else
         {
-            type_ = ProcessType::NONE;
+            type_ = ProcessType::SYS_CMD;
         }
     }
-    void Process::checkBackend()
+    void Process::checkSpecialArgs()
     {
         if (cmd_argument_.back() == "&")
+        {
             is_backend_ = true;
+        }
+        else if (cmd_argument_.back()[0] == '>')
+        {
+            is_fileoutput_ = true;
+            std::string out_file = cmd_argument_.back();
+            file_name_ = out_file.substr(1, out_file.size() - 1);
+        }
+        else if (cmd_argument_.back()[0] == '<')
+        {
+            is_fileinput_ = true;
+            std::string in_file = cmd_argument_.back();
+            file_name_ = in_file.substr(1, in_file.size() - 1);
+        }
         else
-            is_backend_ = false;
+        {
+        }
+        // is_backend_ = false;
     }
+
     void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time)
     {
         id_ = pid;

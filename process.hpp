@@ -16,7 +16,8 @@ namespace shell
         RESUME,
         JOBS,
         KILL,
-        EXIT
+        EXIT,
+        SYS_CMD
     };
     enum class ProcessStatus
     {
@@ -31,19 +32,24 @@ namespace shell
         Process() = default;
         Process(std::string command);
         void parseCommand(const std::string &cmd);
+
         void chooseProgram();
-        void checkBackend();
-        bool isCompleted(){
+        void checkSpecialArgs();
+        bool isCompleted()
+        {
             return completed_;
         }
-        void complete(){
+        void complete()
+        {
             completed_ = true;
             status_ = 'F';
         }
-        std::string command() const {
+        std::string command() const
+        {
             return total_cmd_;
         }
-        void setStatus(char status) {
+        void setStatus(char status)
+        {
             status_ = status;
         }
         void setpid(pid_t pid)
@@ -61,6 +67,18 @@ namespace shell
         bool is_backend()
         {
             return is_backend_;
+        }
+        bool isFileOutput()
+        {
+            return is_fileoutput_;
+        }
+        bool isFileInput()
+        {
+            return is_fileinput_;
+        }
+        std::string fileName()
+        {
+            return file_name_;
         }
         ProcessType type() const
         {
@@ -92,10 +110,12 @@ namespace shell
         {
             stopped = true;
         }
-        double running_time() const {
+        double running_time() const
+        {
             return running_time_;
         }
-        char status() const {
+        char status() const
+        {
             return status_;
         }
 
@@ -106,14 +126,16 @@ namespace shell
         double running_time_;
         std::chrono::system_clock::time_point start_time_;
         uint64_t end_time_;
-        bool is_backend_;
+        bool is_backend_{false};
+        bool is_fileinput_{false};
+        bool is_fileoutput_{false};
+        std::string file_name_;
         std::string total_cmd_;
         std::string cmd_name_;
         std::vector<std::string> cmd_argument_;
         bool stopped;
         char status_;
         bool completed_ = false;
-        
     };
 
 }

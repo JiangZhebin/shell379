@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <thread>
 #include <sys/wait.h>
+#include <fstream>
 
 #include "process_manager.hpp"
 namespace shell
@@ -22,9 +23,24 @@ namespace shell
         }
         else if (pid == 0)
         {
-            // enrichProcess(proc);
-            // std::cout << " child process pid : " << getpid() << std::endl;
-            executeFunc(proc);
+            if (proc.isFileOutput())
+            {
+                std::ofstream out(proc.fileName());
+                std::streambuf *cont_buf = std::cout.rdbuf();
+                std::cout.rdbuf(out.rdbuf());
+                executeFunc(proc);
+            }
+            else if (proc.isFileInput())
+            {
+                std::ifstream in(proc.fileName());
+                std::streambuf *cin_buf = std::cin.rdbuf();
+                std::cin.rdbuf(in.rdbuf());
+                executeFunc(proc);
+            }
+            else
+            {
+                executeFunc(proc);
+            }
             ::exit(1);
         }
         else
@@ -81,6 +97,8 @@ namespace shell
         case ProcessType::EXIT:
             exit_shell();
             break;
+        case ProcessType::SYS_CMD:
+            system_cmd(proc);
         default:
             std::cout << "Other commands" << std::endl;
         }
@@ -202,22 +220,29 @@ namespace shell
         ::kill(id, SIGTERM);
     }
 
-    void ProcessManager::wait(int id) {
-       while(!process_pool_[id].isCompleted()){
-           std::cout << "waiting pid: " << id << std::endl;
-       }  
+    void ProcessManager::wait(int id)
+    {
+        while (!process_pool_[id].isCompleted())
+        {
+            std::cout << "waiting pid: " << id << std::endl;
+        }
     }
 
     void ProcessManager::exit_shell()
     {
-        for(auto p : process_pool_) {
-            if(!p.second.isCompleted()) {
+        for (auto p : process_pool_)
+        {
+            if (!p.second.isCompleted())
+            {
                 wait(p.first);
             }
         }
         jobs();
         ::exit(0);
+    }
 
+    void ProcessManager::system_cmd(const Process &proc)
+    {
     }
 
     void ProcessManager::deleteProcess(pid_t pid)

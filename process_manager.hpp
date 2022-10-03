@@ -25,6 +25,7 @@ namespace shell
         void suspend(int id);
         void wait(int pid);
         void exit_shell();
+        void system_cmd(const Process &proc);
 
     private:
         std::unordered_map<int, Process> process_pool_;
