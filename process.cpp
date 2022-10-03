@@ -19,16 +19,36 @@ namespace shell
             cmd_argument_.push_back(arg);
             // std::cout << arg << std::endl;
         }
-        if (arg.size() > 0)
+        if (cmd_argument_.size() > 0)
         {
             cmd_name_ = cmd_argument_[0];
         }
-        else
+        if (cmd_argument_.size() > 1)
         {
-            std::cerr << "No input command" << std::endl;
+            for (auto i = 1; i < cmd_argument_.size(); i++)
+            {
+                checkInOutArgs(cmd_argument_[i]);
+                args_.push_back(cmd_argument_[i]);
+            }
         }
         chooseProgram();
-        checkSpecialArgs();
+        isBackend();
+    }
+    void Process::updateInputArgs(const std::string &args)
+    {
+        args_.clear();
+        std::istringstream iss(args);
+        std::string arg;
+        while(iss >> arg)
+        {
+            args_.push_back(arg);
+        }
+        std::string cmd = cmd_argument_[0];
+        cmd_argument_.resize(args_.size() + 1);
+        cmd_argument_[0] = cmd;
+        for(auto i = 1 ; i < cmd_argument_.size() ; i++) {
+            cmd_argument_[i] = args_[i-1];
+        }
     }
     void Process::chooseProgram()
     {
@@ -65,28 +85,41 @@ namespace shell
             type_ = ProcessType::SYS_CMD;
         }
     }
-    void Process::checkSpecialArgs()
+    void Process::isBackend()
     {
         if (cmd_argument_.back() == "&")
         {
             is_backend_ = true;
         }
-        else if (cmd_argument_.back()[0] == '>')
+        // else if (cmd_argument_.back()[0] == '>')
+        // {
+        //     is_fileoutput_ = true;
+        //     std::string out_file = cmd_argument_.back();
+        //     file_name_ = out_file.substr(1, out_file.size() - 1);
+        // }
+        // else if (cmd_argument_.back()[0] == '<')
+        // {
+        //     is_fileinput_ = true;
+        //     std::string in_file = cmd_argument_.back();
+        //     file_name_ = in_file.substr(1, in_file.size() - 1);
+        // }
+        // else
+        // {
+        // }
+        // is_backend_ = false;
+    }
+    void Process::checkInOutArgs(const std::string &arg)
+    {
+        if (arg[0] == '>')
         {
             is_fileoutput_ = true;
-            std::string out_file = cmd_argument_.back();
-            file_name_ = out_file.substr(1, out_file.size() - 1);
+            out_file_name_ = arg.substr(1, arg.size() - 1);
         }
-        else if (cmd_argument_.back()[0] == '<')
+        if (arg[0] == '<')
         {
             is_fileinput_ = true;
-            std::string in_file = cmd_argument_.back();
-            file_name_ = in_file.substr(1, in_file.size() - 1);
+            in_file_name_ = arg.substr(1, arg.size() - 1);
         }
-        else
-        {
-        }
-        // is_backend_ = false;
     }
 
     void Process::setSystemInfo(pid_t pid, std::chrono::system_clock::time_point current_time)

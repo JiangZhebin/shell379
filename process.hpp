@@ -5,6 +5,11 @@
 #include <vector>
 #include <chrono>
 #include <iostream>
+
+#define LINE_LENGTH 100
+#define MAX_ARGS 7
+#define MAX_LENGTH 20
+#define MAX_PT_ENTRIES 32
 namespace shell
 {
     enum class ProcessType
@@ -32,9 +37,10 @@ namespace shell
         Process() = default;
         Process(std::string command);
         void parseCommand(const std::string &cmd);
-
+        void updateInputArgs(const std::string &arg);
         void chooseProgram();
-        void checkSpecialArgs();
+        void isBackend();
+        void checkInOutArgs(const std::string &arg);
         bool isCompleted()
         {
             return completed_;
@@ -60,25 +66,29 @@ namespace shell
         {
             return id_;
         }
-        std::string cmd_name()
+        std::string cmd_name() const
         {
             return cmd_name_;
         }
-        bool is_backend()
+        bool is_backend() const
         {
             return is_backend_;
         }
-        bool isFileOutput()
+        bool isFileOutput() const
         {
             return is_fileoutput_;
         }
-        bool isFileInput()
+        bool isFileInput() const
         {
             return is_fileinput_;
         }
-        std::string fileName()
+        std::string inFileName() const
         {
-            return file_name_;
+            return in_file_name_;
+        }
+        std::string outFileName() const 
+        {
+            return out_file_name_;
         }
         ProcessType type() const
         {
@@ -118,6 +128,14 @@ namespace shell
         {
             return status_;
         }
+        std::vector<std::string> args() const
+        {
+            return args_;
+        }
+        std::vector<std::string> full_cmd() const
+        {
+            return cmd_argument_;
+        }
 
     private:
         std::string name_;
@@ -129,9 +147,11 @@ namespace shell
         bool is_backend_{false};
         bool is_fileinput_{false};
         bool is_fileoutput_{false};
-        std::string file_name_;
+        std::string in_file_name_;
+        std::string out_file_name_;
         std::string total_cmd_;
         std::string cmd_name_;
+        std::vector<std::string> args_;
         std::vector<std::string> cmd_argument_;
         bool stopped;
         char status_;

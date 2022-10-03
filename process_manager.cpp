@@ -7,6 +7,7 @@
 #include <thread>
 #include <sys/wait.h>
 #include <fstream>
+#include <cstring>
 
 #include "process_manager.hpp"
 namespace shell
@@ -25,16 +26,19 @@ namespace shell
         {
             if (proc.isFileOutput())
             {
-                std::ofstream out(proc.fileName());
+                std::ofstream out(proc.outFileName());
                 std::streambuf *cont_buf = std::cout.rdbuf();
                 std::cout.rdbuf(out.rdbuf());
                 executeFunc(proc);
             }
             else if (proc.isFileInput())
             {
-                std::ifstream in(proc.fileName());
+                std::ifstream in(proc.inFileName());
                 std::streambuf *cin_buf = std::cin.rdbuf();
                 std::cin.rdbuf(in.rdbuf());
+                std::string input_args;
+                std::getline(std::cin, input_args);
+                proc.updateInputArgs(input_args);
                 executeFunc(proc);
             }
             else
@@ -99,6 +103,7 @@ namespace shell
             break;
         case ProcessType::SYS_CMD:
             system_cmd(proc);
+            break;
         default:
             std::cout << "Other commands" << std::endl;
         }
@@ -243,6 +248,22 @@ namespace shell
 
     void ProcessManager::system_cmd(const Process &proc)
     {
+        printf("Using system cmd %s", proc.cmd_name().data());
+        const char *cmd = proc.cmd_name().data();
+        // char arguments[proc.args().size() + 1][MAX_LENGTH];
+
+        char **args = (char **)malloc(proc.args().size() + 1 * MAX_LENGTH);
+        for (auto i = 0; i < proc.full_cmd().size(); i++)
+        {
+            args[i] = (char *)proc.full_cmd()[i].data();
+        }
+        // strcpy(arguments[proc.args().size()], NULL);
+        args[proc.full_cmd().size()] = NULL;
+        int ret = execv(cmd, args);
+        if (ret < 0)
+        {
+            std::cout << "execv error: " << errno << std::endl;
+        }
     }
 
     void ProcessManager::deleteProcess(pid_t pid)
