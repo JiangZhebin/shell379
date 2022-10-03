@@ -120,6 +120,9 @@ namespace shell
         {
             stopped = true;
         }
+        void updateRunningTime(double t){
+            running_time_ = t;
+        }
         double running_time() const
         {
             return running_time_;
@@ -141,7 +144,7 @@ namespace shell
         std::string name_;
         pid_t id_;
         ProcessType type_;
-        double running_time_;
+        double running_time_{0.0};
         std::chrono::system_clock::time_point start_time_;
         uint64_t end_time_;
         bool is_backend_{false};

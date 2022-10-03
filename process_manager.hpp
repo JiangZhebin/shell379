@@ -26,9 +26,12 @@ namespace shell
         void wait(int pid);
         void exit_shell();
         void system_cmd(const Process &proc);
+        double getProcessTime(pid_t pid);
+        void addProcessTime(pid_t pid);
+        void updateRunningTime(double t);
 
-    private:
         std::unordered_map<int, Process> process_pool_;
+        double using_time_ = 0.0 ;
 
 
     };

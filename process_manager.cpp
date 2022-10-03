@@ -123,7 +123,12 @@ namespace shell
             {
                 if (!it->second.isCompleted())
                 {
+                    // update running time
                     int status;
+                    if (0 == ::kill(it->first, 0))
+                    {
+                        it->second.updateRunningTime(getProcessTime(it->first));
+                    }
                     pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | WCONTINUED);
                     if (ret < 0)
                     {
@@ -132,9 +137,11 @@ namespace shell
                     }
                     if (status != NULL)
                     {
+
                         if (WIFEXITED(status))
                         {
                             std::cout << "Closing " << it->first << std::endl;
+                            using_time_ += it->second.running_time();
                             process_pool_[it->first].complete();
                         }
                         else if (WIFSTOPPED(status))
@@ -170,6 +177,38 @@ namespace shell
         std::cout << "end sleep" << std::endl;
     };
 
+    double ProcessManager::getProcessTime(pid_t pid)
+    {
+        std::string result;
+        std::array<char, 10> buffer;
+        std::string time_cmd = "ps -p " + std::to_string(pid) + " -o etimes=";
+        FILE *pipe = popen(time_cmd.data(), "r");
+        if (!pipe)
+        {
+            std::cerr << "Couldn't start command." << std::endl;
+        }
+        while (fgets(buffer.data(), 10, pipe) != NULL)
+        {
+            result += buffer.data();
+        }
+        if(result == ""){
+            std::cerr<< "empty string time"<< std::endl;
+            return 0.0;
+        }
+        else {
+            return std::stod(result);
+        }
+    }
+
+    void ProcessManager::addProcessTime(pid_t pid)
+    {
+        using_time_ += getProcessTime(pid);
+    }
+
+    void ProcessManager::updateRunningTime(double t)
+    {
+    }
+
     void ProcessManager::jobs()
     {
         std::cout << "Running processes:" << std::endl;
@@ -181,21 +220,24 @@ namespace shell
         {
             if (!p.second.isCompleted())
             {
-                std::cout << active_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
+                // get running time
+                double consumed_time = getProcessTime(p.first);
+                std::cout << active_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << consumed_time << std::setw(20) << p.second.command() << std::endl;
                 active_num++;
                 active_index++;
             }
         }
         std::cout << "Processes = " << active_num << " active" << std::endl;
         std::cout << "Completed processes:" << std::endl;
-        for (auto p : process_pool_)
-        {
-            if (p.second.isCompleted())
-            {
-                std::cout << complete_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
-                complete_index++;
-            }
-        }
+        std::cout << "User time =" << std::setw(20) << using_time_ << std::setw(10) << "seconds" << std::endl;
+        // for (auto p : process_pool_)
+        // {
+        //     if (p.second.isCompleted())
+        //     {
+        //         std::cout << complete_index << std::setw(10) << p.second.id() << std::setw(10) << p.second.status() << std::setw(20) << p.second.command() << std::endl;
+        //         complete_index++;
+        //     }
+        // }
     }
 
     void ProcessManager::suspend(int id)
@@ -242,7 +284,8 @@ namespace shell
                 wait(p.first);
             }
         }
-        jobs();
+        std::cout << "Resources used" << std::endl;
+        std::cout << "User time = " << std::setw(5) << using_time_ << " seconds" << std::endl;
         ::exit(0);
     }
 
@@ -270,5 +313,4 @@ namespace shell
     {
         process_pool_[pid].complete();
     }
-
 }

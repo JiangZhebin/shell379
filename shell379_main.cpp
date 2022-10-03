@@ -31,6 +31,7 @@ int main()
                 int status;
                 waitpid(p1.id(), &status, 0);
                 process_manager.deleteProcess(p1.id());
+                process_manager.using_time_ += process_manager.process_pool_[p1.id()].running_time(); 
             }
             else
             {
