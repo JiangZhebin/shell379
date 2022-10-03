@@ -78,6 +78,9 @@ namespace shell
         case ProcessType::KILL:
             kill(stoi(proc.first_arg()));
             break;
+        case ProcessType::EXIT:
+            exit_shell();
+            break;
         default:
             std::cout << "Other commands" << std::endl;
         }
@@ -93,7 +96,7 @@ namespace shell
         {
             // printf("executing\n");
             auto it = process_pool_.begin();
-            while (it != process_pool_.end()) 
+            while (it != process_pool_.end())
             {
                 if (!it->second.isCompleted())
                 {
@@ -197,6 +200,24 @@ namespace shell
             std::cerr << "Process: " << id << " does not exist" << std::endl;
         }
         ::kill(id, SIGTERM);
+    }
+
+    void ProcessManager::wait(int id) {
+       while(!process_pool_[id].isCompleted()){
+           std::cout << "waiting pid: " << id << std::endl;
+       }  
+    }
+
+    void ProcessManager::exit_shell()
+    {
+        for(auto p : process_pool_) {
+            if(!p.second.isCompleted()) {
+                wait(p.first);
+            }
+        }
+        jobs();
+        ::exit(0);
+
     }
 
     void ProcessManager::deleteProcess(pid_t pid)

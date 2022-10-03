@@ -56,6 +56,10 @@ namespace shell
         {
             type_ = ProcessType::KILL;
         }
+        else if (cmd_name_ == "exit")
+        {
+            type_ = ProcessType::EXIT;
+        }
         else
         {
             type_ = ProcessType::NONE;
