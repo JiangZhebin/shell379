@@ -25,13 +25,14 @@ namespace shell
             // enrichProcess(proc);
             // std::cout << " child process pid : " << getpid() << std::endl;
             executeFunc(proc);
-            ::exit(EXIT_SUCCESS);
+            ::exit(1);
         }
         else
         {
             int status;
             process_pool_.insert(std::pair<pid_t, Process>(proc.id(), proc));
-            if(proc.type() == ProcessType::KILL) {
+            if (proc.type() == ProcessType::KILL)
+            {
                 process_pool_.erase(stoi(proc.first_arg()));
             }
             return pid;
@@ -95,34 +96,40 @@ namespace shell
             while (it != process_pool_.end())
             {
                 int status;
-                // std::cout << "wait for process" << std::endl;
-                pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | SIGCONT);
-                if (WIFEXITED(status))
-                {
-                    process_pool_.erase(it);
-                    std::cout << "Closing " << it->first << std::endl;
+                pid_t ret = waitpid(it->first, &status, WNOHANG | WUNTRACED | WCONTINUED);
+                if(ret <0 ) {
+                        // fprintf(stderr, "%s\n", explain_waitpid(it->first, status, WNOHANG));
+                        std::cout << "waitpid failed " << errno << std::endl;
                 }
-                else if (WIFSTOPPED(status))
+                if (status != NULL)
                 {
-                    it->second.stop();
-                    it->second.setStatus('S');
-                }
-                else if (WIFCONTINUED(status))
-                {
-                    it->second.setStatus('R');
-                }
-                // else if (WIFSIGNALED(status))
-                // {
-                //     std::cout << "Process: " << it->first << " is terminated by SIGTERM" << std::endl;
-                //     process_pool_.erase(it);
-                // }
-                else
-                {
-                    // printf("status: %d\n", status);
+                    if (WIFEXITED(status))
+                    {
+                        std::cout << "Closing " << it->first << std::endl;
+                        process_pool_.erase(it);
+                    }
+                    else if (WIFSTOPPED(status))
+                    {
+                        it->second.stop();
+                        it->second.setStatus('S');
+                    }
+                    else if (WIFCONTINUED(status))
+                    {
+                        it->second.setStatus('R');
+                    }
+                    // else if (WIFSIGNALED(status))
+                    // {
+                    //     std::cout << "Process: " << it->first << " is terminated by SIGTERM" << std::endl;
+                    //     process_pool_.erase(it);
+                    // }
+                    else
+                    {
+                        // printf("status: %d\n", status);
+                    }
                 }
                 it++;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(30));
         }
     }
 
